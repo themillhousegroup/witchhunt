@@ -8,6 +8,7 @@ scalaVersion := "2.11.7"
 organization := "com.themillhousegroup"
 
 libraryDependencies ++= Seq(
+    "com.themillhousegroup"       %%  "scoup"                 % "0.2.26",
     "ch.qos.logback"              %   "logback-classic"       % "1.1.5",
     "com.typesafe.scala-logging"  %%  "scala-logging"         % "3.1.0",
     "org.mockito"                 %   "mockito-all"           % "1.10.19"       % "test",
