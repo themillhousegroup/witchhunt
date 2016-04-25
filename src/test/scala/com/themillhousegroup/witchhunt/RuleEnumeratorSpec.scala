@@ -8,13 +8,18 @@ class RuleEnumeratorSpec extends Specification {
 
     "be able to enumerate style rules in a CSS file" in {
 
-      val styleEnumerator = new RuleEnumerator(simpleStyleRuleBlock)
+      val styleEnumerator = new RuleEnumerator(simpleStyleRuleBlock, "simple.css")
 
       styleEnumerator.styleRules must not beEmpty
 
       styleEnumerator.styleRules must haveLength(3)
 
-      styleEnumerator.styleRules must beEqualTo(Seq("html", "header", "header span.green"))
+      styleEnumerator.styleRules must beEqualTo(
+        Seq(
+          "html" -> 1,
+          "header" -> 6,
+          "header span.green" -> 11
+        ))
 
     }
   }

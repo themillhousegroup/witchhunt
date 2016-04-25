@@ -2,8 +2,7 @@ package com.themillhousegroup.witchhunt.test
 
 object CSSHelpers {
   val simpleStyleRuleBlock =
-    """
-       |html {
+    """|html {
        |   color: black;
        |   background-color: red;
        |}
@@ -17,6 +16,5 @@ object CSSHelpers {
        |   color: green;
        |   background-color: green;
        |}
-       |
      """.stripMargin
 }
