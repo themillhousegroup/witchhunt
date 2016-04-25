@@ -2,7 +2,7 @@ package com.themillhousegroup.witchhunt
 
 import com.helger.css.reader.CSSReader
 import com.helger.css.ECSSVersion
-import com.helger.css.decl.{ CSSStyleRule, CascadingStyleSheet }
+import com.helger.css.decl.{ CSSSelector, CSSStyleRule, CascadingStyleSheet }
 import scala.collection.JavaConverters._
 import com.helger.css.writer.CSSWriterSettings
 
@@ -14,17 +14,19 @@ class RuleEnumerator(val source: String) {
 
   val stylesheet: CascadingStyleSheet = CSSReader.readFromString(source, cssVersion)
 
-  def styleRules(): Seq[String] = {
-    stylesheet.getAllStyleRules.asScala.map { styleRule: CSSStyleRule =>
-      styleRule.getAsCSSString(writerSettings, 0)
+  lazy val styleRules: Seq[String] = {
+    stylesheet.getAllStyleRules.asScala.flatMap { styleRule: CSSStyleRule =>
+      styleRule.getAllSelectors.asScala.map { selector: CSSSelector =>
+        selector.getAsCSSString(writerSettings, 0)
+      }
     }
   }
 
-  def fontFaceRules(): Seq[String] = {
+  lazy val fontFaceRules: Seq[String] = {
     Nil
   }
 
-  def mediaRules(): Seq[String] = {
+  lazy val mediaRules: Seq[String] = {
     Nil
   }
 }

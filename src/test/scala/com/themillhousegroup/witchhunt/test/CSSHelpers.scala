@@ -1,5 +1,22 @@
 package com.themillhousegroup.witchhunt.test
 
-class CSSHelpers {
-
+object CSSHelpers {
+  val simpleStyleRuleBlock =
+    """
+       |html {
+       |   color: black;
+       |   background-color: red;
+       |}
+       |
+       |header {
+       |   color: pink;
+       |   background-color: blue;
+       |}
+       |
+       |header span.green {
+       |   color: green;
+       |   background-color: green;
+       |}
+       |
+     """.stripMargin
 }
