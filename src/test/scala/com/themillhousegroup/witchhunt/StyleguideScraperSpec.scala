@@ -7,6 +7,9 @@ import java.net.URL
 
 class StyleguideScraperSpec extends Specification {
 
+  // These pages are hosted on Github pages
+  // Checkout gh-pages to add/edit content, and push to make it live.
+
   val basicStyleguide = new URL("http://themillhousegroup.github.io/witchhunt/index.html  ")
   val styleguideWithLink = new URL("http://themillhousegroup.github.io/witchhunt/page-with-local-links.html")
 
@@ -16,14 +19,14 @@ class StyleguideScraperSpec extends Specification {
 
   "Styleguide Scraper" should {
 
-    //    "be able to extract a single document from a plain styleguide" in {
-    //
-    //      val result = visit(basicStyleguide)
-    //
-    //      result must haveLength(1)
-    //
-    //      result.head.select("title").text mustEqual ("Witchhunt by themillhousegroup")
-    //    }
+    "be able to extract a single document from a plain styleguide" in {
+
+      val result = visit(basicStyleguide)
+
+      result must haveLength(1)
+
+      result.head.select("title").text mustEqual ("Witchhunt by themillhousegroup")
+    }
 
     "be able to follow links from the starting document" in {
 
@@ -31,7 +34,7 @@ class StyleguideScraperSpec extends Specification {
 
       result must haveLength(2)
 
-      result.map(_.select("title").text) mustEqual (Set("Page with local link", "Witchhunt by themillhousegroup"))
+      result.map(_.select("title").text) must contain("Page with local link", "Witchhunt by themillhousegroup")
     }
   }
 }

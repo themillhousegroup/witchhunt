@@ -13,13 +13,14 @@ import java.net.URL
 object StyleguideScraper extends ScoupImplicits {
 
   def visit(url: URL): Future[Set[Document]] = {
-    Scoup.parse(url.toString).map { doc =>
-      println(s"visited $url")
+    Scoup.parse(url.toString).flatMap { doc =>
       val links = doc.select("a").filter(isLocal).map(_.attr("href"))
-      links.map(createFullLocalUrl(url)).foldLeft(Set(doc)) {
+      links.map(createFullLocalUrl(url)).foldLeft(Future.successful(Set(doc))) {
         case (acc, link) =>
-          println(s"acc: $acc, link: $link")
-          Set(doc)
+          for {
+            existingDocs <- acc
+            newDocs <- visit(link)
+          } yield (existingDocs ++ newDocs)
       }
     }
   }
@@ -29,7 +30,7 @@ object StyleguideScraper extends ScoupImplicits {
     href.startsWith("/")
   }
 
-  private def createFullLocalUrl(base: URL)(link: String): String = {
-    (new java.net.URL(base, link)).toString
+  private def createFullLocalUrl(base: URL)(link: String): URL = {
+    (new java.net.URL(base, link))
   }
 }
