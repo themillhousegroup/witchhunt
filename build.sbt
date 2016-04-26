@@ -8,7 +8,7 @@ scalaVersion := "2.11.7"
 organization := "com.themillhousegroup"
 
 libraryDependencies ++= Seq(
-    "com.themillhousegroup"       %%  "scoup"                 % "0.2.26",
+    "com.themillhousegroup"       %%  "scoup"                 % "0.2.293",
     "com.helger"                  % "ph-css"                  % "4.1.1",
     "ch.qos.logback"              %   "logback-classic"       % "1.1.5",
     "com.typesafe.scala-logging"  %%  "scala-logging"         % "3.1.0",
@@ -18,6 +18,7 @@ libraryDependencies ++= Seq(
 
 resolvers ++= Seq(  "oss-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
                     "oss-releases"  at "https://oss.sonatype.org/content/repositories/releases",
+		    "Millhouse Bintray"  at "http://dl.bintray.com/themillhousegroup/maven",
                     "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/")
 
 jacoco.settings
