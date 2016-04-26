@@ -1,0 +1,6 @@
+{
+  "name": "Witchhunt",
+  "tagline": "Experimental tool to find unused/redundant CSS rules",
+  "body": "### This is a mock stylesheet used by parser tests.\r\n\r\n\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
