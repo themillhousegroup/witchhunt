@@ -14,10 +14,11 @@ object StyleguideScraper extends ScoupImplicits {
 
   def visit(url: URL): Future[Set[Document]] = {
     Scoup.parse(url.toString).map { doc =>
+      println(s"visited $url")
       val links = doc.select("a").filter(isLocal).map(_.attr("href"))
       links.map(createFullLocalUrl(url)).foldLeft(Set(doc)) {
         case (acc, link) =>
-          //FIXME: handle recursion etc
+          println(s"acc: $acc, link: $link")
           Set(doc)
       }
     }
