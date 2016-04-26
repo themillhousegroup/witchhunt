@@ -22,5 +22,20 @@ class RuleEnumeratorSpec extends Specification {
         ))
 
     }
+
+    "be able to enumerate media rules in a CSS file" in {
+
+      val styleEnumerator = new RuleEnumerator(simpleMediaRuleBlock, "media.css")
+
+      styleEnumerator.mediaRules must not beEmpty
+
+      styleEnumerator.mediaRules must haveLength(1)
+
+      styleEnumerator.mediaRules must beEqualTo(
+        Seq(
+          ".radio-button" -> 2
+        ))
+
+    }
   }
 }

@@ -17,4 +17,17 @@ object CSSHelpers {
        |   background-color: green;
        |}
      """.stripMargin
+
+  val simpleMediaRuleBlock =
+    """|@media only screen and (max-device-width: 480px) {
+      |  .radio-button {
+      |    color: pink;
+      |  }
+      |}
+      |
+      |header span.green {
+      |   color: green;
+      |   background-color: green;
+      |}
+    """.stripMargin
 }
