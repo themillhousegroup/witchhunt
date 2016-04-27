@@ -12,9 +12,10 @@ class StyleguideScraperSpec extends Specification {
 
   val basicStyleguide = new URL("http://themillhousegroup.github.io/witchhunt/index.html  ")
   val styleguideWithLink = new URL("http://themillhousegroup.github.io/witchhunt/page-with-local-links.html")
+  val styleguideWithCircularLink = new URL("http://themillhousegroup.github.io/witchhunt/page-with-multiple-local-links.html")
 
   def visit(target: URL) = Await.result(
-    StyleguideScraper.visit(target), Duration(15, "seconds")
+    StyleguideScraper.visit(target), Duration(5, "seconds")
   )
 
   "Styleguide Scraper" should {
@@ -35,6 +36,15 @@ class StyleguideScraperSpec extends Specification {
       result must haveLength(2)
 
       result.map(_.select("title").text) must contain("Page with local link", "Witchhunt by themillhousegroup")
+    }
+
+    "not follow circular links" in {
+
+      val result = visit(styleguideWithCircularLink)
+
+      result must haveLength(3)
+
+      result.map(_.select("title").text) must contain("Page with multiple local links", "Page with local link", "Witchhunt by themillhousegroup")
     }
   }
 }

@@ -13,13 +13,17 @@ import java.net.URL
 object StyleguideScraper extends ScoupImplicits {
 
   def visit(url: URL): Future[Set[Document]] = {
+    visitLink(url, Set.empty)
+  }
+
+  private def visitLink(url: URL, alreadyVisited: Set[URL]): Future[Set[Document]] = {
     Scoup.parse(url.toString).flatMap { doc =>
       val links = doc.select("a").filter(isLocal).map(_.attr("href"))
-      links.map(createFullLocalUrl(url)).foldLeft(Future.successful(Set(doc))) {
+      links.map(createFullLocalUrl(url)).filter(!alreadyVisited.contains(_)).foldLeft(Future.successful(Set(doc))) {
         case (acc, link) =>
           for {
             existingDocs <- acc
-            newDocs <- visit(link)
+            newDocs <- visitLink(link, alreadyVisited + link)
           } yield (existingDocs ++ newDocs)
       }
     }
