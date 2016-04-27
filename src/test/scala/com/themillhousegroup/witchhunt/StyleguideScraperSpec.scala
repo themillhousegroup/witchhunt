@@ -5,14 +5,9 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import java.net.URL
 
+import com.themillhousegroup.witchhunt.test.GithubPagesHelper._
+
 class StyleguideScraperSpec extends Specification {
-
-  // These pages are hosted on Github pages
-  // Checkout gh-pages to add/edit content, and push to make it live.
-
-  val basicStyleguide = new URL("http://themillhousegroup.github.io/witchhunt/index.html  ")
-  val styleguideWithLink = new URL("http://themillhousegroup.github.io/witchhunt/page-with-local-links.html")
-  val styleguideWithCircularLink = new URL("http://themillhousegroup.github.io/witchhunt/page-with-multiple-local-links.html")
 
   def visit(target: URL) = Await.result(
     StyleguideScraper.visit(target), Duration(5, "seconds")
@@ -26,7 +21,7 @@ class StyleguideScraperSpec extends Specification {
 
       result must haveLength(1)
 
-      result.head.select("title").text mustEqual ("Witchhunt by themillhousegroup")
+      result.head.title mustEqual ("Witchhunt by themillhousegroup")
     }
 
     "be able to follow links from the starting document" in {
@@ -35,7 +30,7 @@ class StyleguideScraperSpec extends Specification {
 
       result must haveLength(2)
 
-      result.map(_.select("title").text) must contain("Page with local link", "Witchhunt by themillhousegroup")
+      result.map(_.title) must contain("Page with local link", "Witchhunt by themillhousegroup")
     }
 
     "not follow circular links" in {
@@ -44,7 +39,7 @@ class StyleguideScraperSpec extends Specification {
 
       result must haveLength(3)
 
-      result.map(_.select("title").text) must contain("Page with multiple local links", "Page with local link", "Witchhunt by themillhousegroup")
+      result.map(_.title) must contain("Page with multiple local links", "Page with local link", "Witchhunt by themillhousegroup")
     }
   }
 }
