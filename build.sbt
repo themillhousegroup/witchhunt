@@ -18,7 +18,6 @@ libraryDependencies ++= Seq(
 
 resolvers ++= Seq(  "oss-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
                     "oss-releases"  at "https://oss.sonatype.org/content/repositories/releases",
-		    "Millhouse Bintray"  at "http://dl.bintray.com/themillhousegroup/maven",
                     "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/")
 
 jacoco.settings
