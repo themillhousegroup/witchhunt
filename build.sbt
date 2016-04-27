@@ -8,7 +8,7 @@ scalaVersion := "2.11.7"
 organization := "com.themillhousegroup"
 
 libraryDependencies ++= Seq(
-    "com.themillhousegroup"       %%  "scoup"                 % "0.2.293",
+    "com.themillhousegroup"       %%  "scoup"                 % "0.2.295",
     "com.helger"                  % "ph-css"                  % "4.1.1",
     "ch.qos.logback"              %   "logback-classic"       % "1.1.5",
     "com.typesafe.scala-logging"  %%  "scala-logging"         % "3.1.0",
