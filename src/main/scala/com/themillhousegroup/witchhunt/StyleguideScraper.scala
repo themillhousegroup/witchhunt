@@ -34,7 +34,7 @@ object StyleguideScraper extends ScoupImplicits {
     href.startsWith("/")
   }
 
-  private def createFullLocalUrl(base: URL)(link: String): URL = {
+  def createFullLocalUrl(base: URL)(link: String): URL = {
     (new java.net.URL(base, link))
   }
 }

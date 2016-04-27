@@ -1,50 +1,34 @@
 package com.themillhousegroup.witchhunt
 
+import java.net.URL
+
 import org.specs2.mutable.Specification
+
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import java.net.URL
+
+import com.themillhousegroup.witchhunt.test.GithubPagesHelper._
 
 class WitchhuntSpec extends Specification {
 
   // These pages are hosted on Github pages
   // Checkout gh-pages to add/edit content, and push to make it live.
 
-  val basicStyleguide = new URL("http://themillhousegroup.github.io/witchhunt/index.html  ")
-  val styleguideWithLink = new URL("http://themillhousegroup.github.io/witchhunt/page-with-local-links.html")
-  val styleguideWithCircularLink = new URL("http://themillhousegroup.github.io/witchhunt/page-with-multiple-local-links.html")
-
-  def visit(target: URL) = Await.result(
-    StyleguideScraper.visit(target), Duration(5, "seconds")
+  def inspect(target: URL) = Await.result(
+    Witchhunt.inspect(target), Duration(5, "seconds")
   )
 
-  "Styleguide Scraper" should {
+  "Witchhunt" should {
 
-    "be able to extract a single document from a plain styleguide" in {
+    "Perform checking on a plain styleguide" in {
 
-      val result = visit(basicStyleguide)
+      val result = inspect(basicStyleguide)
 
-      result must haveLength(1)
+      println
+      println(result.mkString("\n"))
+      println
 
-      result.head.select("title").text mustEqual ("Witchhunt by themillhousegroup")
-    }
-
-    "be able to follow links from the starting document" in {
-
-      val result = visit(styleguideWithLink)
-
-      result must haveLength(2)
-
-      result.map(_.select("title").text) must contain("Page with local link", "Witchhunt by themillhousegroup")
-    }
-
-    "not follow circular links" in {
-
-      val result = visit(styleguideWithCircularLink)
-
-      result must haveLength(3)
-
-      result.map(_.select("title").text) must contain("Page with multiple local links", "Page with local link", "Witchhunt by themillhousegroup")
+      result must haveLength(117)
     }
   }
 }

@@ -8,12 +8,18 @@ import com.helger.css.decl._
 import scala.collection.JavaConverters._
 import com.helger.css.writer.CSSWriterSettings
 
-class RuleEnumerator(val source: String, val sourceName: String) {
-
+object RuleEnumerator {
   val cssVersion = ECSSVersion.LATEST
-
   val writerSettings = new CSSWriterSettings(cssVersion)
 
+  // Helper to eliminate CSS selectors that cannot be queried by JSoup - e.g. a:active
+  def queryable(selector: CSSSelector): Boolean = {
+    !selector.getAsCSSString(writerSettings, 0).contains(":")
+  }
+}
+
+class RuleEnumerator(val source: String, val sourceName: String) {
+  import RuleEnumerator._
   val stylesheet: CascadingStyleSheet = CSSReader.readFromString(source, cssVersion)
 
   private def toSelectorAndLineNumber(selector: CSSSelector): (String, Int) = {
@@ -21,7 +27,7 @@ class RuleEnumerator(val source: String, val sourceName: String) {
   }
 
   private def toSelectorAndLineNumberSeq(styleRule: CSSStyleRule): Seq[(String, Int)] = {
-    styleRule.getAllSelectors.asScala.map(toSelectorAndLineNumber)
+    styleRule.getAllSelectors.asScala.filter(queryable).map(toSelectorAndLineNumber)
   }
 
   lazy val styleRules: Seq[(String, Int)] = {
