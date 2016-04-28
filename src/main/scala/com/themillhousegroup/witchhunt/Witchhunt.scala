@@ -24,7 +24,7 @@ object Witchhunt extends ScoupImplicits {
 
   private def processPage(stylePage: Document): Future[Seq[String]] = {
     val pageUrl = new URL(stylePage.location)
-    val stylesheets = CSSEnumerator.localStylesheetUrls(stylePage)
+    val stylesheets = StylesheetFinder.localStylesheetUrls(stylePage)
     val absUrls = stylesheets.map(StyleguideScraper.createFullLocalUrl(pageUrl))
 
     fetchRules(absUrls).map { ruleSets =>

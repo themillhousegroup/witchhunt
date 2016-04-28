@@ -9,7 +9,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 /**
  * Parses an HTML document, finding stylesheet declarations within.
  */
-object CSSEnumerator extends ScoupImplicits {
+object StylesheetFinder extends ScoupImplicits {
 
   def allStylesheetUrls(doc: Document): Seq[String] = {
     doc.head.select("link").filter { elem =>
