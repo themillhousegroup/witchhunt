@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object Witchhunt extends ScoupImplicits {
   def inspect(styleguideUrl: URL): Future[Seq[String]] = {
-    StyleguideScraper.visit(styleguideUrl).flatMap { stylePages =>
+    StyleguideSpider.visit(styleguideUrl).flatMap { stylePages =>
 
       val futureViolations = stylePages.toSeq.map { stylePage =>
         processPage(stylePage)
@@ -25,7 +25,7 @@ object Witchhunt extends ScoupImplicits {
   private def processPage(stylePage: Document): Future[Seq[String]] = {
     val pageUrl = new URL(stylePage.location)
     val stylesheets = StylesheetFinder.localStylesheetUrls(stylePage)
-    val absUrls = stylesheets.map(StyleguideScraper.createFullLocalUrl(pageUrl))
+    val absUrls = stylesheets.map(StyleguideSpider.createFullLocalUrl(pageUrl))
 
     fetchRules(absUrls).map { ruleSets =>
       ruleSets.flatMap { ruleSet =>

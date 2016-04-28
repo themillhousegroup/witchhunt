@@ -10,7 +10,7 @@ import java.net.URL
  * Scrapes / Spiders the given base URL (a styleguide), returning at least one Scoup/JSoup
  * Document, representing the styleguide and any local pages that link off it.
  */
-object StyleguideScraper extends ScoupImplicits {
+object StyleguideSpider extends ScoupImplicits {
 
   def visit(url: URL): Future[Set[Document]] = {
     visitLink(url, Set.empty)

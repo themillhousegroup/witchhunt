@@ -7,13 +7,13 @@ import java.net.URL
 
 import com.themillhousegroup.witchhunt.test.GithubPagesHelper._
 
-class StyleguideScraperSpec extends Specification {
+class StyleguideSpiderSpec extends Specification {
 
   def visit(target: URL) = Await.result(
-    StyleguideScraper.visit(target), Duration(5, "seconds")
+    StyleguideSpider.visit(target), Duration(5, "seconds")
   )
 
-  "Styleguide Scraper" should {
+  "Styleguide Spider" should {
 
     "be able to extract a single document from a plain styleguide" in {
 
