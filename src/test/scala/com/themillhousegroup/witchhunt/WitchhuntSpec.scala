@@ -30,5 +30,16 @@ class WitchhuntSpec extends Specification {
 
       result must haveLength(117)
     }
+
+    "Perform checking on a styleguide that refers to another identical page and find the same number of violations" in {
+
+      val result = inspect(styleguideWithLink)
+
+      println
+      println(result.mkString("\n"))
+      println
+
+      result must haveLength(117)
+    }
   }
 }
