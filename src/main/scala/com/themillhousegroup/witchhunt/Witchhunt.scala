@@ -64,7 +64,7 @@ object Witchhunt extends ScoupImplicits {
     applicablePages.find { stylePage =>
       stylePage.select(selector).nonEmpty
     }.fold[Option[String]](
-      Some(s"Selector: '${selector}' (${ruleSet.sourceName}:${lineNumber}) - no match in ${applicablePages}")
+      Some(s"Selector: '${selector}' (${ruleSet.sourceName}:${lineNumber}) - no match in ${applicablePages.map(_.location).mkString(", ")}")
     )(_ => None)
   }
 }
