@@ -3,6 +3,7 @@ package com.themillhousegroup.witchhunt
 import java.net.URL
 
 import com.themillhousegroup.scoup.{ Scoup, ScoupImplicits }
+import com.themillhousegroup.witchhunt.util.MapInverter
 import org.jsoup.nodes.Document
 
 import scala.concurrent.Future
@@ -13,65 +14,32 @@ object Witchhunt extends ScoupImplicits {
     StyleguideSpider.visit(styleguideUrl).flatMap { stylePages =>
 
       // For each page, list the stylesheets it references:
-      val pageStylesheets = stylePages.toSeq.map { stylePage =>
+      val pageStylesheets: Map[Document, Set[URL]] = stylePages.toSeq.map { stylePage =>
         stylesheetsForPage(stylePage)
-      }
+      }.toMap
 
       // Invert this so that for each stylesheet, we have a list of pages where it is used:
-      val stylesheetPages = pageStylesheets.flatMap {
-        case (page, stylesheets) =>
-          stylesheets.map { stylesheet =>
-            stylesheet -> page
-          }
-      }.groupBy {
-        case (stylesheet, page) =>
-          stylesheet
-      }.map {
-        case (stylesheet, stylesheetPageList) =>
-          stylesheet -> stylesheetPageList.map {
-            case (stylesheet, page) =>
-              page
-          }.toSet
-      }
+      val stylesheetPages: Map[URL, Set[Document]] = MapInverter.invert(pageStylesheets)
 
-      stylesheetPages.map {
+      // For each stylesheet, check its rules on pages where it is referenced:
+      val iterableOfFutures = stylesheetPages.map {
         case (stylesheet, pages) =>
-          val rules = fetchRules(stylesheet)
-
+          fetchRules(stylesheet).map { ruleSet =>
+            checkRuleSet(ruleSet, pages)
+          }
       }
 
-      Future.sequence(futureViolations).map { violationLists =>
-        violationLists.flatten
-      }
+      // Twist this into what we need:
+      Future.sequence(iterableOfFutures).map(_.flatten.toSeq)
     }
   }
 
-  private def stylesheetsForPage(stylePage: Document) = {
+  private def stylesheetsForPage(stylePage: Document): (Document, Set[URL]) = {
     val pageUrl = new URL(stylePage.location)
     val stylesheets = StylesheetFinder.localStylesheetUrls(stylePage)
     val absUrls = stylesheets.map(StyleguideSpider.createFullLocalUrl(pageUrl))
 
-    stylePage -> absUrls
-  }
-
-  private def processPage(stylePage: Document): Future[Seq[String]] = {
-    val pageUrl = new URL(stylePage.location)
-    val stylesheets = StylesheetFinder.localStylesheetUrls(stylePage)
-    val absUrls = stylesheets.map(StyleguideSpider.createFullLocalUrl(pageUrl))
-
-    fetchRules(absUrls).map { ruleSets =>
-      ruleSets.flatMap { ruleSet =>
-        checkRuleSet(stylePage, ruleSet)
-      }
-    }
-  }
-
-  private def fetchRules(absUrls: Seq[URL]): Future[Seq[RuleEnumerator]] = {
-    Future.sequence(absUrls.map { stylesheet =>
-      Scoup.get(stylesheet.toString).map { ssBody =>
-        new RuleEnumerator(ssBody, stylesheet.toString)
-      }
-    })
+    stylePage -> absUrls.toSet
   }
 
   private def fetchRules(stylesheet: URL): Future[RuleEnumerator] = {
@@ -81,13 +49,22 @@ object Witchhunt extends ScoupImplicits {
   }
 
   // This is the key to it all. Returns a list of violations
-  private def checkRuleSet(stylePage: Document, ruleSet: RuleEnumerator): Seq[String] = {
+  private def checkRuleSet(ruleSet: RuleEnumerator, applicablePages: Set[Document]): Seq[String] = {
     ruleSet.styleRules.flatMap { rule =>
       val selector = rule._1
-      if (stylePage.select(selector).isEmpty) {
-        Some(s"Rule: '${rule._1}' (${ruleSet.sourceName}:${rule._2}) - no match in ${stylePage.location}")
-      } else None
+      val lineNumber = rule._2
 
+      checkSelector(ruleSet, selector, lineNumber, applicablePages)
     }
+  }
+
+  // Return a violation if there is no element matching the selector in ANY of the supplied pages
+  private def checkSelector(ruleSet: RuleEnumerator, selector: String, lineNumber: Int, applicablePages: Set[Document]): Option[String] = {
+    // As soon as we find an element that matches the selector, we can stop:
+    applicablePages.find { stylePage =>
+      stylePage.select(selector).nonEmpty
+    }.fold[Option[String]](
+      Some(s"Selector: '${selector}' (${ruleSet.sourceName}:${lineNumber}) - no match in ${applicablePages}")
+    )(_ => None)
   }
 }
