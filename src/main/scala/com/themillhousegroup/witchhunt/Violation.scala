@@ -10,4 +10,5 @@ case class Violation(
   relativePath: String,
   url: URL,
   lineNumber: Int,
-  selector: String)
+  selector: String,
+  applicablePages: Set[String])

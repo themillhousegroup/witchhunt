@@ -1,12 +1,12 @@
 package com.themillhousegroup.witchhunt
 
 import com.helger.css.reader.CSSReader
-import com.helger.css.decl.CSSStyleRule
 import com.helger.css.ECSSVersion
 import com.helger.css.decl._
 
 import scala.collection.JavaConverters._
 import com.helger.css.writer.CSSWriterSettings
+import java.net.URL
 
 object RuleEnumerator {
   val cssVersion = ECSSVersion.LATEST
@@ -18,9 +18,12 @@ object RuleEnumerator {
   }
 }
 
-class RuleEnumerator(val source: String, val sourceName: String) {
+class RuleEnumerator(val cssContent: String, val sourceUrl: URL) {
   import RuleEnumerator._
-  val stylesheet: CascadingStyleSheet = CSSReader.readFromString(source, cssVersion)
+
+  private val path = sourceUrl.getPath
+  val sourceName = path.substring(path.lastIndexOf("/") + 1)
+  val stylesheet: CascadingStyleSheet = CSSReader.readFromString(cssContent, cssVersion)
 
   private def toSelectorAndLineNumber(selector: CSSSelector): (String, Int) = {
     selector.getAsCSSString(writerSettings, 0) -> selector.getSourceLocation.getFirstTokenBeginLineNumber

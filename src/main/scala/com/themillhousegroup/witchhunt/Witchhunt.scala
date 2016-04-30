@@ -10,7 +10,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object Witchhunt extends ScoupImplicits {
-  def inspect(styleguideUrl: URL): Future[Seq[String]] = {
+  def inspect(styleguideUrl: URL): Future[Seq[Violation]] = {
     StyleguideSpider.visit(styleguideUrl).flatMap { stylePages =>
 
       // For each page, list the stylesheets it references:
@@ -43,13 +43,13 @@ object Witchhunt extends ScoupImplicits {
   }
 
   private def fetchRules(stylesheet: URL): Future[RuleEnumerator] = {
-    Scoup.get(stylesheet.toString).map { ssBody =>
-      new RuleEnumerator(ssBody, stylesheet.toString)
+    Scoup.get(stylesheet.toString).map { ssContent =>
+      new RuleEnumerator(ssContent, stylesheet)
     }
   }
 
   // This is the key to it all. Returns a list of violations
-  private def checkRuleSet(ruleSet: RuleEnumerator, applicablePages: Set[Document]): Seq[String] = {
+  private def checkRuleSet(ruleSet: RuleEnumerator, applicablePages: Set[Document]): Seq[Violation] = {
     ruleSet.styleRules.flatMap { rule =>
       val selector = rule._1
       val lineNumber = rule._2
@@ -59,12 +59,20 @@ object Witchhunt extends ScoupImplicits {
   }
 
   // Return a violation if there is no element matching the selector in ANY of the supplied pages
-  private def checkSelector(ruleSet: RuleEnumerator, selector: String, lineNumber: Int, applicablePages: Set[Document]): Option[String] = {
+  private def checkSelector(ruleSet: RuleEnumerator, selector: String, lineNumber: Int, applicablePages: Set[Document]): Option[Violation] = {
     // As soon as we find an element that matches the selector, we can stop:
     applicablePages.find { stylePage =>
       stylePage.select(selector).nonEmpty
-    }.fold[Option[String]](
-      Some(s"Selector: '${selector}' (${ruleSet.sourceName}:${lineNumber}) - no match in ${applicablePages.map(_.location).mkString(", ")}")
+    }.fold[Option[Violation]](
+      Some(
+        Violation(
+          ruleSet.sourceName,
+          ruleSet.sourceUrl,
+          lineNumber,
+          selector,
+          applicablePages.map(_.location)
+        )
+      )
     )(_ => None)
   }
 }
