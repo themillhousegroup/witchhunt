@@ -7,8 +7,13 @@ import java.net.URL
  * elements in the inspected styleguide page(s)
  */
 case class Violation(
-  relativePath: String,
-  url: URL,
-  lineNumber: Int,
-  selector: String,
-  applicablePages: Set[String])
+    relativePath: String,
+    url: URL,
+    lineNumber: Int,
+    selector: String,
+    applicablePages: Set[String]) {
+
+  override lazy val toString: String = {
+    s"$relativePath:$lineNumber - Selector '$selector' is unused"
+  }
+}
