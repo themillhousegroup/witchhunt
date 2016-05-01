@@ -9,8 +9,10 @@ import org.jsoup.nodes.Document
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
+case class WitchhuntOptions(includeMediaRules: Boolean = false)
+
 object Witchhunt extends ScoupImplicits {
-  def inspect(styleguideUrl: URL): Future[Seq[Violation]] = {
+  def inspect(styleguideUrl: URL, options: WitchhuntOptions = WitchhuntOptions()): Future[Seq[Violation]] = {
     StyleguideSpider.visit(styleguideUrl).flatMap { stylePages =>
 
       // For each page, list the stylesheets it references:
