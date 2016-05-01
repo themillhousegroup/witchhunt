@@ -1,14 +1,23 @@
 package com.themillhousegroup.witchhunt.util
 
 /**
- * Takes a Map[ A, Set[B] ]
- * and "inverts" it to a
- * Map[ B, Set[A] ]
- *
- * For example:
- * Map("Tom Cruise" -> Set(
- *
- *
+  *
+  * Takes a Map[ A, Set[B] ]
+  * and "inverts" it to a
+  * Map[ B, Set[A] ]
+  *
+  * For example:
+  * Map(  "George Clooney"  -> Set("Ocean's Eleven", "Solaris"),
+  *       "Brad Pitt"       -> Set("Interview with the Vampire", "Ocean's Eleven")
+  * )
+  *
+  * would be "inverted" to:
+  *
+  * Map(    "Ocean's Eleven"              -> Set("George Clooney", "Brad Pitt"),
+  *         "Solaris"                     -> Set("George Clooney"),
+  *         "Interview with the Vampire"  -> Set("Brad Pitt")
+  * )
+  *
  */
 object MapInverter {
 
