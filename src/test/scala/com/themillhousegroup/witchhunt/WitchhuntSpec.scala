@@ -14,8 +14,8 @@ class WitchhuntSpec extends Specification {
   // These pages are hosted on Github pages
   // Checkout gh-pages to add/edit content, and push to make it live.
 
-  def inspect(target: URL) = Await.result(
-    Witchhunt.inspect(target), Duration(5, "seconds")
+  def inspect(target: URL, options: WitchhuntOptions = WitchhuntOptions()) = Await.result(
+    Witchhunt.inspect(target, options), Duration(5, "seconds")
   )
 
   "Witchhunt" should {

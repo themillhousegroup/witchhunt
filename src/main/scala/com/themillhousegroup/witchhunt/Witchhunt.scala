@@ -9,7 +9,15 @@ import org.jsoup.nodes.Document
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class WitchhuntOptions(includeMediaRules: Boolean = false)
+case class WitchhuntOptions(includeMediaRules: Boolean = false) {
+  def filterMediaRules(enumerator: RuleEnumerator): Seq[(String, Int)] = {
+    if (includeMediaRules) {
+      enumerator.mediaRules
+    } else {
+      Nil
+    }
+  }
+}
 
 object Witchhunt extends ScoupImplicits {
   def inspect(styleguideUrl: URL, options: WitchhuntOptions = WitchhuntOptions()): Future[Seq[Violation]] = {
@@ -26,8 +34,11 @@ object Witchhunt extends ScoupImplicits {
       // For each stylesheet, check its rules on pages where it is referenced:
       val iterableOfFutures = stylesheetPages.map {
         case (stylesheet, pages) =>
-          fetchRules(stylesheet).map { ruleSet =>
-            checkRuleSet(ruleSet, pages)
+          fetchRules(stylesheet).map { ruleEnumerator =>
+
+            val ruleSet = ruleEnumerator.styleRules ++ options.filterMediaRules(ruleEnumerator)
+
+            checkRuleSet(ruleEnumerator, ruleSet, pages)
           }
       }
 
@@ -51,12 +62,12 @@ object Witchhunt extends ScoupImplicits {
   }
 
   // This is the key to it all. Returns a list of violations
-  private def checkRuleSet(ruleSet: RuleEnumerator, applicablePages: Set[Document]): Seq[Violation] = {
-    ruleSet.styleRules.flatMap { rule =>
+  private def checkRuleSet(enumerator: RuleEnumerator, ruleSet: Seq[(String, Int)], applicablePages: Set[Document]): Seq[Violation] = {
+    ruleSet.flatMap { rule =>
       val selector = rule._1
       val lineNumber = rule._2
 
-      checkSelector(ruleSet, selector, lineNumber, applicablePages)
+      checkSelector(enumerator, selector, lineNumber, applicablePages)
     }
   }
 
