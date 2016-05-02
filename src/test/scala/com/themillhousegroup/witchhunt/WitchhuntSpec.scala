@@ -39,7 +39,7 @@ class WitchhuntSpec extends Specification {
       println(result.mkString("\n"))
       println
 
-      result must haveLength(117)
+      result must haveLength(113) // This second page has a <button> which satisfies an additional 4 rules
     }
   }
 }
