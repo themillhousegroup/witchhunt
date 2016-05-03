@@ -50,7 +50,9 @@ class WitchhuntSpec extends Specification {
       println(result.mkString("\n"))
       println
 
-      result must haveLength(119) // By including media-queries, an extra 2 rules become enforceable
+      result must haveLength(118) // By including media-queries, an extra rule becomes enforceable
+
+      result.find(_.selector == "button.never-matched") must not beNone
     }
   }
 }
