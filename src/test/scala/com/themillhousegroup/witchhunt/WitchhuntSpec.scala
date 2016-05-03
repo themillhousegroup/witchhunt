@@ -41,5 +41,16 @@ class WitchhuntSpec extends Specification {
 
       result must haveLength(113) // This second page has a <button> which satisfies an additional 4 rules
     }
+
+    "Respect the 'includeMediaRules' option" in {
+
+      val result = inspect(basicStyleguide, WitchhuntOptions(includeMediaRules = true))
+
+      println
+      println(result.mkString("\n"))
+      println
+
+      result must haveLength(119) // By including media-queries, an extra 2 rules become enforceable
+    }
   }
 }
