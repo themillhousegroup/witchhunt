@@ -12,20 +12,29 @@ import java.net.URL
  */
 object StyleguideSpider extends ScoupImplicits {
 
-  def visit(url: URL): Future[Set[Document]] = {
-    visitLink(url, Set.empty)
+  def visit(url: URL, thisPageOnly: Boolean = false): Future[Set[Document]] = {
+    visitLink(url, Set.empty, thisPageOnly)
   }
 
-  private def visitLink(url: URL, alreadyVisited: Set[URL]): Future[Set[Document]] = {
+  private def visitLink(url: URL, alreadyVisited: Set[URL], thisPageOnly: Boolean): Future[Set[Document]] = {
     Scoup.parse(url.toString).flatMap { doc =>
-      val links = doc.select("a").filter(isLocal).map(_.attr("href"))
-      links.map(createFullLocalUrl(url)).filter(!alreadyVisited.contains(_)).foldLeft(Future.successful(Set(doc))) {
-        case (acc, link) =>
-          for {
-            existingDocs <- acc
-            newDocs <- visitLink(link, alreadyVisited + link)
-          } yield (existingDocs ++ newDocs)
+
+      if (thisPageOnly) {
+        Future.successful(Set(doc))
+      } else {
+        visitLinks(url, doc, alreadyVisited)
       }
+    }
+  }
+
+  private def visitLinks(url: URL, doc: Document, alreadyVisited: Set[URL]) = {
+    val links = doc.select("a").filter(isLocal).map(_.attr("href"))
+    links.map(createFullLocalUrl(url)).filter(!alreadyVisited.contains(_)).foldLeft(Future.successful(Set(doc))) {
+      case (acc, link) =>
+        for {
+          existingDocs <- acc
+          newDocs <- visitLink(link, alreadyVisited + link, false)
+        } yield (existingDocs ++ newDocs)
     }
   }
 

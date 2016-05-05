@@ -9,7 +9,7 @@ import org.jsoup.nodes.Document
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class WitchhuntOptions(includeMediaRules: Boolean = false) {
+case class WitchhuntOptions(includeMediaRules: Boolean = false, initialPageOnly: Boolean = false) {
   def filterMediaRules(enumerator: RuleEnumerator): Seq[(String, Int)] = {
     if (includeMediaRules) {
       enumerator.mediaRules
@@ -21,7 +21,7 @@ case class WitchhuntOptions(includeMediaRules: Boolean = false) {
 
 object Witchhunt extends ScoupImplicits {
   def inspect(styleguideUrl: URL, options: WitchhuntOptions = WitchhuntOptions()): Future[Seq[Violation]] = {
-    StyleguideSpider.visit(styleguideUrl).flatMap { stylePages =>
+    StyleguideSpider.visit(styleguideUrl, options.initialPageOnly).flatMap { stylePages =>
 
       // For each page, list the stylesheets it references:
       val pageStylesheets: Map[Document, Set[URL]] = stylePages.toSeq.map { stylePage =>
