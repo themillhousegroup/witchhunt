@@ -5,11 +5,14 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object WitchhuntOptionsBuilder {
-  val allOptions = Map[String, WitchhuntOptions => WitchhuntOptions](
-    "--includeMediaRules" -> (_.copy(includeMediaRules = true))
+  val allOptions = Map[(String, String), WitchhuntOptions => WitchhuntOptions](
+    "--includeMediaRules" -> "Include style rules within @media queries" -> (_.copy(includeMediaRules = true)),
+    "--initialPageOnly" -> "Only test the given page, don't 'spider' any others" -> (_.copy(initialPageOnly = true))
   )
 
-  val allOptionKeys = allOptions.keys.toSet
+  val allOptionKeys = allOptions.keys.map(_._1).toSet
+
+  def optionFor(s: String): WitchhuntOptions => WitchhuntOptions = allOptions.find(o => o._1._1 == s).map(_._2).get
 }
 
 object WitchhuntApp extends App {
@@ -35,7 +38,7 @@ object WitchhuntApp extends App {
     val options = arguments.takeWhile(allOptionKeys.contains).foldLeft(WitchhuntOptions()) {
       case (wo, optionString) =>
         println(s"Adding option $optionString")
-        allOptions(optionString)(wo)
+        optionFor(optionString)(wo)
     }
 
     arguments.find(!allOptionKeys.contains(_)).map { urlString =>
