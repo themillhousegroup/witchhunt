@@ -31,7 +31,10 @@ object WitchhuntApp extends App {
   private def showUsage(): Unit = {
     System.err.println("Usage: [options] styleguide-url\n")
     System.err.println("Supported options:")
-    allOptionKeys.foreach(System.err.println)
+    allOptions.keys.foreach {
+      case (o, d) =>
+        System.err.println(s"${o.padTo(24, ' ')} $d")
+    }
   }
 
   def parseArguments(): Unit = {
