@@ -5,6 +5,8 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object WitchhuntOptionsBuilder {
+  val optionPrefix = "--"
+
   val allOptions = Map[(String, String), WitchhuntOptions => WitchhuntOptions](
     "--includeMediaRules" -> "Include style rules within @media queries" -> (_.copy(includeMediaRules = true)),
     "--initialPageOnly" -> "Only test the given page, don't 'spider' any others" -> (_.copy(initialPageOnly = true))
@@ -12,7 +14,7 @@ object WitchhuntOptionsBuilder {
 
   val allOptionKeys = allOptions.keys.map(_._1).toSet
 
-  def optionFor(s: String): WitchhuntOptions => WitchhuntOptions = allOptions.find(o => o._1._1 == s).map(_._2).get
+  def optionFor(s: String): Option[WitchhuntOptions => WitchhuntOptions] = allOptions.find(o => o._1._1 == s).map(_._2)
 }
 
 object WitchhuntApp extends App {
@@ -38,13 +40,18 @@ object WitchhuntApp extends App {
   }
 
   def parseArguments(): Unit = {
-    val options = arguments.takeWhile(allOptionKeys.contains).foldLeft(WitchhuntOptions()) {
+    val options = arguments.takeWhile(_.startsWith(optionPrefix)).foldLeft(WitchhuntOptions()) {
       case (wo, optionString) =>
-        println(s"Adding option $optionString")
-        optionFor(optionString)(wo)
+        optionFor(optionString).fold {
+          System.err.println(s"WARNING: Option $optionString unrecognised")
+          wo
+        } { f =>
+          println(s"Adding option $optionString")
+          f(wo)
+        }
     }
 
-    arguments.find(!allOptionKeys.contains(_)).map { urlString =>
+    arguments.find(!_.startsWith(optionPrefix)).map { urlString =>
       println(s"Target URL: $urlString")
       start(options, urlString)
     }.getOrElse {
