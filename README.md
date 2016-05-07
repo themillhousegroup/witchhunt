@@ -3,6 +3,9 @@ witchhunt
 
 ***EXPERIMENTAL*** tool to find unused/redundant CSS rules.
 
+### Rationale
+Having a live styleguide offers great benefits to any dynamic website. But sometimes it can be hard to know if your styleguide is truly comprehensive. Does it actually exercise every bit of styling specified in your local CSS files? Or from the opposite perspective, do you have CSS rules that are no longer needed?
+
 ### Operation
 
 - Tell _witchhunt_ where to find your site's styleguide
@@ -11,11 +14,30 @@ witchhunt
   - Any local rules that are not matched will be reported
   - Any local rules that are redundant will be reported
 
+### Building the executable
+Preconditions: you have a working SBT stack (i.e. Java and SBT installed)
 
+```
+% sbt stage
+```
 
-### Still To-Do
+### Running the executable
 
-All of it.
+On UNIX-like systems:
+
+```
+% ./target/universal/stage/bin/witchhunt [options] <target-url>
+```
+
+On Windows systems:
+
+```
+% ./target/universal/stage/bin/witchhunt.bat [options] <target-url>
+```
+
+#### Options
+Invoke `witchhunt` with no arguments to an the up-to-date list.
+
 
 ### Credits
 
