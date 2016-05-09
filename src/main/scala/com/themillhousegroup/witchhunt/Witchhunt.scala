@@ -83,7 +83,8 @@ object Witchhunt extends ScoupImplicits {
           ruleSet.sourceUrl,
           lineNumber,
           selector,
-          applicablePages.map(_.location)
+          applicablePages.map(_.location),
+          UnusedSelectorViolation
         )
       )
     )(_ => None)
