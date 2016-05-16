@@ -30,4 +30,33 @@ object CSSHelpers {
       |   background-color: green;
       |}
     """.stripMargin
+
+
+  val repeatedRuleBlock =
+    """|html {
+      |   color: black;
+      |   background-color: red;
+      |}
+      |
+      |header {
+      |   color: pink;
+      |   background-color: blue;
+      |}
+      |header {
+      |   color: red;
+      |   background-color: green;
+      |}
+    """.stripMargin
+
+  val redundantRuleBlock =
+    """|
+      |html header {
+      |   color: pink;
+      |   background-color: blue;
+      |}
+      |header {
+      |   color: red;
+      |   background-color: green;
+      |}
+    """.stripMargin
 }
