@@ -4,7 +4,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object WitchhuntOptionsBuilder {
+object WitchhuntOptionsParsing {
   val optionPrefix = "--"
 
   val allOptions = Map[(String, String), WitchhuntOptions => WitchhuntOptions](
@@ -15,10 +15,21 @@ object WitchhuntOptionsBuilder {
   val allOptionKeys = allOptions.keys.map(_._1).toSet
 
   def optionFor(s: String): Option[WitchhuntOptions => WitchhuntOptions] = allOptions.find(o => o._1._1 == s).map(_._2)
+
+  val parser = new scopt.OptionParser[WitchhuntOptions]("witchhunt") {
+    head("witchhunt", "0.x")
+    opt[Boolean]('m', "include-media-rules") action { (x, c) =>
+      c.copy(includeMediaRules = x)
+    } text ("Include style rules within @media queries")
+
+    opt[Boolean]('i', "initial-page-only") action { (x, c) =>
+      c.copy(initialPageOnly = x)
+    } text ("Only test the given page, don't 'spider' any others")
+  }
 }
 
 object WitchhuntApp extends App {
-  import WitchhuntOptionsBuilder._
+  import WitchhuntOptionsParsing._
 
   val defaultTimeout = Duration(15, "seconds")
 

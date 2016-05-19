@@ -31,7 +31,6 @@ object CSSHelpers {
       |}
     """.stripMargin
 
-
   val repeatedRuleBlock =
     """|html {
       |   color: black;
