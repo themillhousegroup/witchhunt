@@ -11,7 +11,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 case class WitchhuntOptions(includeMediaRules: Boolean = false,
     initialPageOnly: Boolean = false,
-    ignoreSheetNames: Seq[String] = Nil) {
+    ignoreSheetNames: Seq[String] = Nil,
+    initialUrl: String = "") {
   def filterMediaRules(enumerator: RuleEnumerator): Seq[(String, Int)] = {
     if (includeMediaRules) {
       enumerator.mediaRules
