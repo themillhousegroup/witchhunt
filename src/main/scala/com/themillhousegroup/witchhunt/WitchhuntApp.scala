@@ -9,7 +9,8 @@ object WitchhuntOptionsParsing {
 
   val allOptions = Map[(String, String), WitchhuntOptions => WitchhuntOptions](
     "--includeMediaRules" -> "Include style rules within @media queries" -> (_.copy(includeMediaRules = true)),
-    "--initialPageOnly" -> "Only test the given page, don't 'spider' any others" -> (_.copy(initialPageOnly = true))
+    "--initialPageOnly" -> "Only test the given page, don't 'spider' any others" -> (_.copy(initialPageOnly = true)),
+    "--ignoreSheetNames" -> "Exclude stylesheets with the given name" -> (_.copy(ignoreSheetNames = Seq("icomoon.css")))
   )
 
   val allOptionKeys = allOptions.keys.map(_._1).toSet

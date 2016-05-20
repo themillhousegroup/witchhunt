@@ -9,13 +9,20 @@ import org.jsoup.nodes.Document
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class WitchhuntOptions(includeMediaRules: Boolean = false, initialPageOnly: Boolean = false) {
+case class WitchhuntOptions(includeMediaRules: Boolean = false,
+    initialPageOnly: Boolean = false,
+    ignoreSheetNames: Seq[String] = Nil) {
   def filterMediaRules(enumerator: RuleEnumerator): Seq[(String, Int)] = {
     if (includeMediaRules) {
       enumerator.mediaRules
     } else {
       Nil
     }
+  }
+
+  def filterSheetNames(sheetUrl: URL): Boolean = {
+    val sheetName = sheetUrl.getPath.split("/").last
+    !ignoreSheetNames.contains(sheetName)
   }
 }
 
@@ -32,7 +39,7 @@ object Witchhunt extends ScoupImplicits {
       val stylesheetPages: Map[URL, Set[Document]] = MapInverter.invert(pageStylesheets)
 
       // For each stylesheet, check its rules on pages where it is referenced:
-      val iterableOfFutures = stylesheetPages.map {
+      val iterableOfFutures = stylesheetPages.filterKeys(options.filterSheetNames).map {
         case (stylesheet, pages) =>
           fetchRules(stylesheet).map { ruleEnumerator =>
 
