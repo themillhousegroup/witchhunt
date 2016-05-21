@@ -36,7 +36,7 @@ On Windows systems:
 ```
 
 #### Options
-Invoke `witchhunt` with no arguments to an the up-to-date list.
+Invoke `witchhunt` with no arguments to get the up-to-date list.
 
 
 ### Credits
