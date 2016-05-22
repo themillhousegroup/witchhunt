@@ -6,6 +6,9 @@ witchhunt
 ### Rationale
 Having a live styleguide offers great benefits to any dynamic website. But sometimes it can be hard to know if your styleguide is truly comprehensive. Does it actually exercise every bit of styling specified in your local CSS files? Or from the opposite perspective, do you have CSS rules that are no longer needed?
 
+
+See also - [CSS Purge](http://www.csspurge.com/) which has provided inspiration for lots of these warnings/violations.
+
 ### Operation
 
 - Tell _witchhunt_ where to find your site's styleguide
@@ -37,6 +40,18 @@ On Windows systems:
 
 #### Options
 Invoke `witchhunt` with no arguments to get the up-to-date list.
+
+### Still To-Do
+- Detect and parse `.map` files and use them to give correct locations in LESS and SASS pre-processor files
+- Warn about excessive nesting a.k.a [The Inception Rule](http://www.csspurge.com/) (3 levels down)
+- Warn about [excessive colors](http://www.csspurge.com/)
+- Warn about [excessive media querying](http://www.csspurge.com/)
+- Warn about [excessive numbers of style links](http://www.csspurge.com/)
+- Warn about [excessive numbers of font sizes](http://www.csspurge.com/)
+- Warn about [excessive numbers of font families](http://www.csspurge.com/)
+- Warn about [excessive specificity](http://www.csspurge.com/)
+
+
 
 
 ### Credits
