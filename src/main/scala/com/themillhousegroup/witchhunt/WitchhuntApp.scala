@@ -39,7 +39,7 @@ object WitchhuntApp extends App {
 
   private def start(options: WitchhuntOptions, url: URL): Unit = {
 
-    val result = Witchhunt.inspect(url, options).map { violations =>
+    val result = new Witchhunt(options).inspect(url).map { violations =>
       violations.foreach(println)
       println(s"\n${violations.size} ${pluralize("violation", violations.size)} detected")
     }

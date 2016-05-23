@@ -3,7 +3,7 @@ package com.themillhousegroup.witchhunt
 import java.net.URL
 
 import com.themillhousegroup.scoup.{ Scoup, ScoupImplicits }
-import com.themillhousegroup.witchhunt.checks.UnusedSelectorCheck
+import com.themillhousegroup.witchhunt.checks.{ ExcessiveSpecificityCheck, UnusedSelectorCheck, WitchhuntViolationCheck }
 import com.themillhousegroup.witchhunt.util.MapInverter
 import org.jsoup.nodes.Document
 
@@ -13,7 +13,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 case class WitchhuntOptions(includeMediaRules: Boolean = false,
     initialPageOnly: Boolean = false,
     ignoreSheetNames: Seq[String] = Nil,
-    initialUrl: String = "") {
+    initialUrl: String = "",
+    specificityLimit: Int = 100) {
   def filterMediaRules(enumerator: RuleEnumerator): Seq[(String, Int)] = {
     if (includeMediaRules) {
       enumerator.mediaRules
@@ -28,11 +29,11 @@ case class WitchhuntOptions(includeMediaRules: Boolean = false,
   }
 }
 
-object Witchhunt {
+class Witchhunt(options: WitchhuntOptions = WitchhuntOptions()) {
 
-  val checks = Seq(UnusedSelectorCheck)
+  val checks: Seq[WitchhuntViolationCheck] = Seq(UnusedSelectorCheck, new ExcessiveSpecificityCheck(options))
 
-  def inspect(initialUrl: URL, options: WitchhuntOptions = WitchhuntOptions()): Future[Seq[Violation[_]]] = {
+  def inspect(initialUrl: URL): Future[Seq[Violation]] = {
     StyleguideSpider.visit(initialUrl, options.initialPageOnly).flatMap { stylePages =>
 
       // For each page, list the stylesheets it references:
@@ -74,7 +75,7 @@ object Witchhunt {
   }
 
   // This is the key to it all. Returns a list of violations
-  private def checkRuleSet(enumerator: RuleEnumerator, ruleSet: Seq[(String, Int)], applicablePages: Set[Document]): Seq[Violation[_]] = {
+  private def checkRuleSet(enumerator: RuleEnumerator, ruleSet: Seq[(String, Int)], applicablePages: Set[Document]): Seq[Violation] = {
     ruleSet.flatMap { rule =>
       val selector = rule._1
       val lineNumber = rule._2

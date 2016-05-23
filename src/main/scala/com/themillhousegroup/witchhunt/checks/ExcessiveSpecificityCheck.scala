@@ -1,17 +1,18 @@
 package com.themillhousegroup.witchhunt.checks
 
 import com.themillhousegroup.scoup.ScoupImplicits
-import com.themillhousegroup.witchhunt.{ RuleEnumerator, UnusedSelectorViolation, Violation, ViolationType }
+import com.themillhousegroup.witchhunt._
 import org.jsoup.nodes.Document
 
-object UnusedSelectorCheck extends WitchhuntViolationCheck with ScoupImplicits {
+class ExcessiveSpecificityCheck(options: WitchhuntOptions) extends WitchhuntViolationCheck with ScoupImplicits {
 
-  // Return a violation if there is no element matching the selector in ANY of the supplied pages
+  // Return a violation if the selector is more specific that the configured limit
   def checkSelector(ruleSet: RuleEnumerator, selector: String, lineNumber: Int, applicablePages: Set[Document]): Option[Violation] = {
     // As soon as we find an element that matches the selector, we can stop:
-    applicablePages.find { stylePage =>
-      stylePage.select(selector).nonEmpty
-    }.fold[Option[Violation]](
+
+    val result = Specificity.calculateSingle(selector)
+
+    if (result.asInt > options.specificityLimit) {
       Some(
         Violation(
           ruleSet.sourceName,
@@ -19,9 +20,13 @@ object UnusedSelectorCheck extends WitchhuntViolationCheck with ScoupImplicits {
           lineNumber,
           selector,
           applicablePages.map(_.location),
-          UnusedSelectorViolation
+          ExcessiveSpecificityViolation,
+          Some(options.specificityLimit),
+          Some(result.asInt)
         )
       )
-    )(_ => None)
+    } else {
+      None
+    }
   }
 }
