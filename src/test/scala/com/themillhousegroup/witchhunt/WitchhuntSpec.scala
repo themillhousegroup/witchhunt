@@ -17,7 +17,13 @@ class WitchhuntSpec extends Specification {
 
   def await[T](f: Future[T]): T = Await.result(f, timeout)
 
-  def inspect(target: URL, options: WitchhuntOptions = WitchhuntOptions()) = await(Witchhunt.inspect(target, options))
+  def fInspect(target: URL, options: WitchhuntOptions = WitchhuntOptions()) = {
+    new Witchhunt(options).inspect(target)
+  }
+
+  def inspect(target: URL, options: WitchhuntOptions = WitchhuntOptions()) = {
+    await(fInspect(target, options))
+  }
 
   "Witchhunt" should {
 
@@ -46,8 +52,8 @@ class WitchhuntSpec extends Specification {
 
     "Respect the 'initialPageOnly' option" in {
 
-      val fTestAllPages = Witchhunt.inspect(styleguideWithCircularLink, WitchhuntOptions(initialPageOnly = false))
-      val fTestFirstPageOnly = Witchhunt.inspect(styleguideWithCircularLink, WitchhuntOptions(initialPageOnly = true))
+      val fTestAllPages = fInspect(styleguideWithCircularLink, WitchhuntOptions(initialPageOnly = false))
+      val fTestFirstPageOnly = fInspect(styleguideWithCircularLink, WitchhuntOptions(initialPageOnly = true))
 
       await(
         for {
