@@ -3,7 +3,7 @@ package com.themillhousegroup.witchhunt
 import java.net.URL
 
 sealed trait ViolationType {
-  def describe(v: Violation[_]): String
+  def describe(v: Violation[this.type]): String
 }
 
 /**
@@ -11,7 +11,7 @@ sealed trait ViolationType {
   * elements in the inspected styleguide page(s)
   */
 final object UnusedSelectorViolation extends ViolationType {
-  def describe(v: Violation[_]): String = s"Selector '${v.selector}' is unused"
+  def describe(v: Violation[this.type]): String = s"Selector '${v.selector}' is unused"
 }
 
 
