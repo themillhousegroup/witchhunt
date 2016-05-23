@@ -3,6 +3,7 @@ package com.themillhousegroup.witchhunt
 import java.net.URL
 
 import com.themillhousegroup.scoup.{ Scoup, ScoupImplicits }
+import com.themillhousegroup.witchhunt.checks.UnusedSelectorCheck
 import com.themillhousegroup.witchhunt.util.MapInverter
 import org.jsoup.nodes.Document
 
@@ -27,9 +28,12 @@ case class WitchhuntOptions(includeMediaRules: Boolean = false,
   }
 }
 
-object Witchhunt extends ScoupImplicits {
-  def inspect(styleguideUrl: URL, options: WitchhuntOptions = WitchhuntOptions()): Future[Seq[Violation]] = {
-    StyleguideSpider.visit(styleguideUrl, options.initialPageOnly).flatMap { stylePages =>
+object Witchhunt {
+
+  val checks = Seq(UnusedSelectorCheck)
+
+  def inspect(initialUrl: URL, options: WitchhuntOptions = WitchhuntOptions()): Future[Seq[Violation]] = {
+    StyleguideSpider.visit(initialUrl, options.initialPageOnly).flatMap { stylePages =>
 
       // For each page, list the stylesheets it references:
       val pageStylesheets: Map[Document, Set[URL]] = stylePages.toSeq.map { stylePage =>
@@ -75,26 +79,11 @@ object Witchhunt extends ScoupImplicits {
       val selector = rule._1
       val lineNumber = rule._2
 
-      checkSelector(enumerator, selector, lineNumber, applicablePages)
+      checks.flatMap { check =>
+        check.checkSelector(enumerator, selector, lineNumber, applicablePages)
+      }
+
     }
   }
 
-  // Return a violation if there is no element matching the selector in ANY of the supplied pages
-  private def checkSelector(ruleSet: RuleEnumerator, selector: String, lineNumber: Int, applicablePages: Set[Document]): Option[Violation] = {
-    // As soon as we find an element that matches the selector, we can stop:
-    applicablePages.find { stylePage =>
-      stylePage.select(selector).nonEmpty
-    }.fold[Option[Violation]](
-      Some(
-        Violation(
-          ruleSet.sourceName,
-          ruleSet.sourceUrl,
-          lineNumber,
-          selector,
-          applicablePages.map(_.location),
-          UnusedSelectorViolation
-        )
-      )
-    )(_ => None)
-  }
 }
