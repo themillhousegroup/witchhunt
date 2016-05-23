@@ -32,7 +32,7 @@ object Witchhunt {
 
   val checks = Seq(UnusedSelectorCheck)
 
-  def inspect(initialUrl: URL, options: WitchhuntOptions = WitchhuntOptions()): Future[Seq[Violation]] = {
+  def inspect(initialUrl: URL, options: WitchhuntOptions = WitchhuntOptions()): Future[Seq[Violation[_]]] = {
     StyleguideSpider.visit(initialUrl, options.initialPageOnly).flatMap { stylePages =>
 
       // For each page, list the stylesheets it references:
@@ -74,7 +74,7 @@ object Witchhunt {
   }
 
   // This is the key to it all. Returns a list of violations
-  private def checkRuleSet(enumerator: RuleEnumerator, ruleSet: Seq[(String, Int)], applicablePages: Set[Document]): Seq[Violation] = {
+  private def checkRuleSet(enumerator: RuleEnumerator, ruleSet: Seq[(String, Int)], applicablePages: Set[Document]): Seq[Violation[_]] = {
     ruleSet.flatMap { rule =>
       val selector = rule._1
       val lineNumber = rule._2
