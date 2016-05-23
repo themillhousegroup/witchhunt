@@ -32,6 +32,6 @@ case class Violation(
     violationValue: Option[Int] = None) {
 
   override lazy val toString: String = {
-    violationType.describe(this)
+    s"$relativePath:$lineNumber - ${violationType.describe(this)}"
   }
 }
