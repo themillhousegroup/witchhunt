@@ -22,6 +22,10 @@ object WitchhuntOptionsParsing {
       c.copy(ignoreSheetNames = names)
     } valueName ("<name1>,<name2>...") text ("Exclude stylesheets with the given name(s)")
 
+    opt[Int]('s', "max-specificity") action { (v, c) =>
+      c.copy(specificityLimit = v)
+    } text ("Fail selectors with specificity greater than this value")
+
     arg[String]("<initial-url>") action { (url, c) =>
       c.copy(initialUrl = url)
     } text ("The URL to start inspecting")

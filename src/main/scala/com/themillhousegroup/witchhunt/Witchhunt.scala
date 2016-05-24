@@ -14,7 +14,7 @@ case class WitchhuntOptions(includeMediaRules: Boolean = false,
     initialPageOnly: Boolean = false,
     ignoreSheetNames: Seq[String] = Nil,
     initialUrl: String = "",
-    specificityLimit: Int = 100) {
+    specificityLimit: Int = 10) {
   def filterMediaRules(enumerator: RuleEnumerator): Seq[(String, Int)] = {
     if (includeMediaRules) {
       enumerator.mediaRules
