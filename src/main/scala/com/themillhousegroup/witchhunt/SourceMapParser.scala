@@ -75,14 +75,14 @@ object Base64VLQDecoder {
   }
 
   def decodeBase64VLQFrom(aStr: String, aIndex: Int): Seq[Int] = {
-    var strLen = aStr.length
+    val strLen = aStr.length
     var result = 0
     var shift = 0
     var continuation = true
     var digit = 0
     var i = aIndex
 
-    val returnValue = scala.collection.mutable.Seq()
+    val returnValue = scala.collection.mutable.ListBuffer[Int]()
 
     while (continuation) {
 
@@ -90,19 +90,19 @@ object Base64VLQDecoder {
         throw new IllegalArgumentException("Expected more digits in base 64 VLQ value.");
       }
 
-      digit = Base64SingleCharacterDecoder.decode(aStr.charAt(i))
+      val char = aStr.charAt(i)
+      digit = Base64SingleCharacterDecoder.decode(char)
       i = i + 1
       if (digit == -1) {
-        throw new IllegalStateException("Invalid base64 digit: " + aStr.charAt(i - 1));
+        throw new IllegalStateException("Invalid base64 digit: " + char);
       }
-
+      println(s"digit $i, char is $char : $digit")
       continuation = (digit & VLQ_CONTINUATION_BIT) == 1
       digit &= VLQ_BASE_MASK
       result = result + (digit << shift)
       shift += VLQ_BASE_SHIFT
 
-      println(s"Looping on $i - $digit - $result - $shift - continue: $continuation")
-      returnValue :+ fromVLQSigned(result)
+      returnValue += fromVLQSigned(result)
     }
 
     returnValue.toSeq
@@ -133,9 +133,12 @@ object SourceMapParser {
 
     val inputFiles = contentJson \\ "sources"
 
-    val mappings = (contentJson \\ "mappings").head.as[String]
+    val maybeMappings = (contentJson \\ "mappings").headOption.map(_.as[String])
 
-    parseMappings(mappings)
+    maybeMappings.map { mappings =>
+      parseMappings(mappings)
+    }
+
     true
   }
 
@@ -154,17 +157,15 @@ object SourceMapParser {
   private def parseSegment(segment: String) = {
 
     segment.length match {
-      case 0 => println("")
-      case 1 => println("1-length")
-      case 4 => decodeFourFields(segment)
-      case 5 => println("5-length")
+      case n if (n == 1 || n == 4 || n == 5) => decodeFields(segment)
+      case _ => println("")
     }
     println(s"$segment ")
   }
 
-  private def decodeFourFields(segment: String) = {
+  private def decodeFields(segment: String) = {
     val fields = Base64VLQDecoder.decodeBase64VLQ(segment)
-    println(s"4-length; fields: ${fields.length}")
+    println(s"length ${segment.length}; fields: ${fields.length}")
 
   }
 }
