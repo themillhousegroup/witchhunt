@@ -8,7 +8,6 @@ class ExcessiveSpecificityCheck(options: WitchhuntOptions) extends WitchhuntViol
 
   // Return a violation if the selector is more specific that the configured limit
   def checkSelector(ruleSet: RuleEnumerator, selector: String, lineNumber: Int, applicablePages: Set[Document]): Option[Violation] = {
-    // As soon as we find an element that matches the selector, we can stop:
 
     val result = Specificity.calculateSingle(selector)
 
