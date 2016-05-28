@@ -18,7 +18,7 @@ class RuleEnumeratorSpec extends Specification {
 
       styleEnumerator.styleRules must haveLength(3)
 
-      styleEnumerator.styleRules must beEqualTo(
+      styleEnumerator.styleRules.map(sr => sr._1 -> sr._3) must beEqualTo(
         Seq(
           "html" -> 1,
           "header" -> 6,
@@ -35,7 +35,7 @@ class RuleEnumeratorSpec extends Specification {
 
       styleEnumerator.mediaRules must haveLength(1)
 
-      styleEnumerator.mediaRules must beEqualTo(
+      styleEnumerator.mediaRules.map(sr => sr._1 -> sr._3) must beEqualTo(
         Seq(
           ".radio-button" -> 2
         ))
