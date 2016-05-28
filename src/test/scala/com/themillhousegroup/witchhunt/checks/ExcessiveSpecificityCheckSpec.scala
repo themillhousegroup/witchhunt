@@ -6,7 +6,10 @@ import org.specs2.mutable.Specification
 
 class ExcessiveSpecificityCheckSpec extends Specification with Mockito {
 
+  val mockSourceFileName = "mock-source.css"
+  val mockSourceFileLine = 24
   val re = mock[RuleEnumerator]
+  re.sourceName returns mockSourceFileName
 
   def buildESC(threshold: Int) = {
     new ExcessiveSpecificityCheck(new WitchhuntOptions().copy(specificityLimit = threshold))
@@ -17,23 +20,23 @@ class ExcessiveSpecificityCheckSpec extends Specification with Mockito {
     "Be silent for selectors below the threshold" in {
       val esc = buildESC(100)
 
-      esc.checkSelector(re, "html", 24, Set.empty) must beNone
+      esc.checkSelector(re, "html", mockSourceFileLine, Set.empty) must beNone
     }
 
     "Not report selectors with specificity equal to the threshold" in {
       val esc = buildESC(10)
 
-      esc.checkSelector(re, ".header", 24, Set.empty) must beNone
+      esc.checkSelector(re, ".header", mockSourceFileLine, Set.empty) must beNone
     }
 
     "Report selectors with specificity above the threshold" in {
       val esc = buildESC(10)
 
-      val result = esc.checkSelector(re, "html body div.header", 24, Set.empty)
+      val result = esc.checkSelector(re, "html body div.header", mockSourceFileLine, Set.empty)
 
       result must beSome[Violation]
 
-      result.getOrElse("").toString must beEqualTo("Selector 'html body div.header' is too specific - score 13 exceeds threshold 10")
+      result.getOrElse("").toString must beEqualTo(s"$mockSourceFileName:$mockSourceFileLine - Selector 'html body div.header' is too specific - score 13 exceeds threshold 10")
     }
   }
 }
