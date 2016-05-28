@@ -25,23 +25,31 @@ class RuleEnumerator(val cssContent: String, val sourceUrl: URL) {
   val sourceName = path.substring(path.lastIndexOf("/") + 1)
   val stylesheet: CascadingStyleSheet = CSSReader.readFromString(cssContent, cssVersion)
 
-  private def toSelectorAndLineNumber(selector: CSSSelector): (String, Int) = {
-    selector.getAsCSSString(writerSettings, 0) -> selector.getSourceLocation.getFirstTokenBeginLineNumber
+  private def toSelectorDeclarationsAndLineNumber(declarations: Seq[CSSDeclaration])(selector: CSSSelector): (String, Seq[CSSDeclaration], Int) = {
+    (selector.getAsCSSString(writerSettings, 0),
+      declarations,
+      selector.getSourceLocation.getFirstTokenBeginLineNumber
+    )
   }
 
-  private def toSelectorAndLineNumberSeq(styleRule: CSSStyleRule): Seq[(String, Int)] = {
-    styleRule.getAllSelectors.asScala.filter(queryable).map(toSelectorAndLineNumber)
+  private def toSelectorDeclarationsAndLineNumberSeq(styleRule: CSSStyleRule): Seq[(String, Seq[CSSDeclaration], Int)] = {
+    val selectors = styleRule.getAllSelectors.asScala.filter(queryable)
+    val declarations = styleRule.getAllDeclarations.asScala.toSeq
+
+    selectors.map(toSelectorDeclarationsAndLineNumber(declarations))
   }
 
-  lazy val styleRules: Seq[(String, Int)] = {
-    stylesheet.getAllStyleRules.asScala.flatMap(toSelectorAndLineNumberSeq)
+  lazy val styleRules: Seq[(String, Seq[CSSDeclaration], Int)] = {
+    val rules = stylesheet.getAllStyleRules.asScala
+
+    rules.flatMap(toSelectorDeclarationsAndLineNumberSeq)
   }
 
-  lazy val mediaRules: Seq[(String, Int)] = {
+  lazy val mediaRules: Seq[(String, Seq[CSSDeclaration], Int)] = {
     stylesheet.getAllMediaRules.asScala.flatMap { mediaRule: CSSMediaRule =>
       mediaRule.getAllRules.asScala.flatMap {
         _ match {
-          case (styleRule @ (_: CSSStyleRule)) => toSelectorAndLineNumberSeq(styleRule)
+          case (styleRule @ (_: CSSStyleRule)) => toSelectorDeclarationsAndLineNumberSeq(styleRule)
           case _ => Nil
         }
       }

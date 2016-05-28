@@ -9,13 +9,14 @@ import org.jsoup.nodes.Document
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import com.helger.css.decl.CSSDeclaration
 
 case class WitchhuntOptions(includeMediaRules: Boolean = false,
     initialPageOnly: Boolean = false,
     ignoreSheetNames: Seq[String] = Nil,
     initialUrl: String = "",
     specificityLimit: Int = 10) {
-  def filterMediaRules(enumerator: RuleEnumerator): Seq[(String, Int)] = {
+  def filterMediaRules(enumerator: RuleEnumerator): Seq[(String, Seq[CSSDeclaration], Int)] = {
     if (includeMediaRules) {
       enumerator.mediaRules
     } else {
@@ -75,10 +76,11 @@ class Witchhunt(options: WitchhuntOptions = WitchhuntOptions()) {
   }
 
   // This is the key to it all. Returns a list of violations
-  private def checkRuleSet(enumerator: RuleEnumerator, ruleSet: Seq[(String, Int)], applicablePages: Set[Document]): Seq[Violation] = {
+  private def checkRuleSet(enumerator: RuleEnumerator, ruleSet: Seq[(String, Seq[CSSDeclaration], Int)], applicablePages: Set[Document]): Seq[Violation] = {
     ruleSet.flatMap { rule =>
       val selector = rule._1
-      val lineNumber = rule._2
+      val declarations = rule._2
+      val lineNumber = rule._3
 
       checks.flatMap { check =>
         check.checkSelector(enumerator, selector, lineNumber, applicablePages)

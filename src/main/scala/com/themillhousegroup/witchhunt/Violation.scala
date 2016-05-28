@@ -22,8 +22,8 @@ final object ExcessiveSpecificityViolation extends ViolationType {
 }
 
 /**
-  * Overall usage of too many color definitions
-  */
+ * Overall usage of too many color definitions
+ */
 final object ExcessiveColorsViolation extends ViolationType {
   def describe(v: Violation): String = s"Number of color declarations: ${v.violationValue.getOrElse("?")} exceeds threshold ${v.thresholdValue.getOrElse("?")}"
 }
