@@ -17,8 +17,8 @@ class ExcessiveColorsCheck(options: WitchhuntOptions) extends WitchhuntViolation
       declaration.getExpression
     }.toSet
 
-    if (knownColors.size > 3) {
-      buildViolation(ExcessiveColorsViolation)
+    if (knownColors.size > options.colorLimit) {
+      buildViolation(ExcessiveColorsViolation, Some(options.colorLimit), Some(knownColors.size))
     } else {
       None
     }
