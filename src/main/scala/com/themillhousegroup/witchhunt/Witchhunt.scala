@@ -83,7 +83,7 @@ class Witchhunt(options: WitchhuntOptions = WitchhuntOptions()) {
       val lineNumber = rule._3
 
       checks.flatMap { check =>
-        check.checkSelector(enumerator, selector, lineNumber, applicablePages)
+        check.checkSelector(enumerator, selector, lineNumber, declarations, applicablePages)
       }
 
     }
