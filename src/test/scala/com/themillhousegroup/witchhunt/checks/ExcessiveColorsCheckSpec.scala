@@ -15,7 +15,7 @@ class ExcessiveColorsCheckSpec extends Specification with Mockito {
     new ExcessiveSpecificityCheck(new WitchhuntOptions().copy(specificityLimit = threshold))
   }
 
-  "Excessive Specificity Check" should {
+  "Excessive Colors Check" should {
 
     "Be silent for selectors below the threshold" in {
       val esc = buildESC(100)

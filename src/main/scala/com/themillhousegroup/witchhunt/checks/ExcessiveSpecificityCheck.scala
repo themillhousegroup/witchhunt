@@ -8,22 +8,15 @@ import com.helger.css.decl.CSSDeclaration
 class ExcessiveSpecificityCheck(options: WitchhuntOptions) extends WitchhuntViolationCheck with ScoupImplicits {
 
   // Return a violation if the selector is more specific that the configured limit
-  def checkSelector(ruleSet: RuleEnumerator, selector: String, lineNumber: Int, declarationsWithin: Seq[CSSDeclaration], applicablePages: Set[Document]): Option[Violation] = {
+  def checkSelector(implicit ruleSet: RuleEnumerator, selector: String, lineNumber: Int, declarationsWithin: Seq[CSSDeclaration], applicablePages: Set[Document]): Option[Violation] = {
 
     val result = Specificity.calculateSingle(selector)
 
     if (result.asInt > options.specificityLimit) {
-      Some(
-        Violation(
-          ruleSet.sourceName,
-          ruleSet.sourceUrl,
-          lineNumber,
-          selector,
-          applicablePages.map(_.location),
-          ExcessiveSpecificityViolation,
-          Some(options.specificityLimit),
-          Some(result.asInt)
-        )
+      buildViolation(
+        ExcessiveSpecificityViolation,
+        Some(options.specificityLimit),
+        Some(result.asInt)
       )
     } else {
       None
